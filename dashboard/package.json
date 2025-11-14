@@ -1,8 +1,11 @@
 {
-  "name": "dashboard",
+  "name": "jkn-ussd-dashboard",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "author": "Global Palvion <zainahmadfahrezi@gmail.com>",
+  "license": "PROPRIETARY",
+  "description": "JKN USSD Simulator - Web Dashboard",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

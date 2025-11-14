@@ -2,6 +2,8 @@
   "name": "jkn-ussd-mobile",
   "version": "1.0.0",
   "main": "index.js",
+  "author": "Global Palvion <zainahmadfahrezi@gmail.com>",
+  "license": "PROPRIETARY",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -16,8 +18,14 @@
     "react-native": "0.81.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
+    "@babel/core": "^7.26.0",
     "babel-preset-expo": "~54.0.0"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "glob": "^10.4.5",
+    "rimraf": "^5.0.10",
+    "inflight": "npm:@aashutoshrathi/inflight@^1.0.1",
+    "js-yaml": "^4.1.1"
+  }
 }

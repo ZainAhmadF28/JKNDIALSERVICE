@@ -1,3 +1,18 @@
+/**
+ * JKN DIAL SERVICE SIMULATOR - Mobile Application
+ * 
+ * Copyright (c) 2025 Global Palvion. All Rights Reserved.
+ * 
+ * PROPRIETARY AND CONFIDENTIAL
+ * 
+ * This source code is the proprietary and confidential information of
+ * Global Palvion. Unauthorized copying, distribution, modification, or
+ * use of this software, via any medium, is strictly prohibited without
+ * the express written permission of Global Palvion.
+ * 
+ * For licensing inquiries: zainahmadfahrezi@gmail.com
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,

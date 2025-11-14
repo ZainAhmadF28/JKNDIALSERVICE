@@ -1,3 +1,18 @@
+/**
+ * JKN DIAL SERVICE SIMULATOR - Backend Server
+ * 
+ * Copyright (c) 2025 Global Palvion. All Rights Reserved.
+ * 
+ * PROPRIETARY AND CONFIDENTIAL
+ * 
+ * This source code is the proprietary and confidential information of
+ * Global Palvion. Unauthorized copying, distribution, modification, or
+ * use of this software, via any medium, is strictly prohibited without
+ * the express written permission of Global Palvion.
+ * 
+ * For licensing inquiries: zainahmadfahrezi@gmail.com
+ */
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -31,6 +46,7 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // Dashboard Data API Routes
 app.use('/api/dashboard', dataRoutes);
+app.use('/api', dataRoutes); // Alias for dashboard.html compatibility
 
 // Routes
 app.use('/', routes);
