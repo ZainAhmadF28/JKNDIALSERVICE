@@ -54,7 +54,9 @@ ipconfig
 
 **Mac/Linux:**
 ```bash
-ip route
+hostname -I
+# atau
+ip addr show
 ```
 
 Catat IP address (contoh: `192.168.1.100`), kemudian setup mobile app:
@@ -75,18 +77,6 @@ npm start
 ```
 
 Scan QR code dengan Expo Go app di smartphone. Setelah app terbuka, ketik `*354#` kemudian tekan tombol CALL untuk memulai simulasi USSD.
-
-### Web Dashboard Setup (Optional)
-
-Dashboard untuk monitoring data secara real-time:
-
-```bash
-cd dashboard
-npm install
-npm run dev
-```
-
-Dashboard akan berjalan di `http://localhost:5173` dan memerlukan backend aktif di port 3000.
 
 ---
 
@@ -110,21 +100,16 @@ Aplikasi menyediakan 10 menu USSD:
 ## Technology Stack
 
 **Backend:**
-- Node.js + Express.js v4.18
-- Prisma ORM v5.22 (SQLite untuk development, PostgreSQL untuk production)
+- Node.js + Express.js v4.21
+- Prisma ORM v5.22 (SQLite untuk development)
 - Swagger UI untuk dokumentasi API
 - Custom USSD session engine
 
 **Mobile:**
 - Expo SDK 54 (React Native)
-- React v19.1 + React Native v0.81
+- React v19.1 + React Native v0.81.5
 - Axios HTTP client
 - Custom dialpad dan USSD popup components
-
-**Web Dashboard:**
-- React v19.2 + Vite v7.2
-- React Router v6.26
-- Real-time data fetching dari backend API
 
 ---
 
@@ -142,23 +127,18 @@ JKNDIALSERVICE/
 │   │   ├── controllers/        # Request handlers
 │   │   ├── routes/             # API routes
 │   │   ├── services/           # Business logic (USSD engine)
+│   │   ├── shoot/              # Troubleshooting utilities
 │   │   └── index.js            # Application entry point
 │   └── package.json
 │
-├── mobile/
-│   ├── components/
-│   │   ├── Dialpad.js          # Telephone dialpad UI
-│   │   └── UssdPopup.js        # USSD modal popup
-│   ├── services/
-│   │   └── ussdService.js      # API communication layer
-│   ├── App.js                  # Main application component
-│   └── config.js               # Backend URL configuration
-│
-└── dashboard/
-    ├── src/
-    │   ├── pages/              # Dashboard pages
-    │   └── App.jsx             # Main app with routing
-    └── vite.config.js          # Vite configuration
+└── mobile/
+    ├── components/
+    │   ├── Dialpad.js          # Telephone dialpad UI
+    │   └── UssdPopup.js        # USSD modal popup
+    ├── services/
+    │   └── ussdService.js      # API communication layer
+    ├── App.js                  # Main application component
+    └── config.js               # Backend URL configuration
 ```
 
 ---
@@ -187,8 +167,8 @@ Database telah di-seed dengan data dummy untuk testing:
 **NIK Peserta:**
 - `3201234567890001` - Budi Santoso (Status: Aktif, Kelas: III)
 - `3201234567890002` - Siti Aminah (Status: Aktif, Kelas: II)
-- `3201234567890003` - Ahmad Hidayat (Status: NonAktif, Kelas: I)
-- `1671122812030001` - Zain Ahmad Fahrezi (Status: Aktif, Kelas: III)
+- `3201234567890003` - Ahmad Hidayat (Status: NonAktif, Kelas: III)
+- `1671122812030001` - Zain Ahmad Fahrezi (Status: Aktif, Kelas: II)
 
 **Kode Faskes:**
 - `PKM-BGR-001` - Puskesmas Cibinong
@@ -255,6 +235,8 @@ curl -X POST http://localhost:3000/api/ussd \
   -H "Content-Type: application/json" \
   -d '{
     "sessionId": "session_002",
+    "serviceCode": "*354#",
+    "phoneNumber": "081234567890",
     "text": "2*3201234567890001"
   }'
 ```
@@ -276,6 +258,8 @@ curl -X POST http://localhost:3000/api/ussd \
   -H "Content-Type: application/json" \
   -d '{
     "sessionId": "session_007",
+    "serviceCode": "*354#",
+    "phoneNumber": "081234567890",
     "text": "8*3201234567890999*3201012345678999*John Doe*Bogor*1"
   }'
 ```
@@ -332,11 +316,6 @@ Akses di `http://localhost:3000/api/docs`
 - `npm run ios` - Open di iOS simulator
 - `npm run web` - Open di web browser
 
-**Dashboard:**
-- `npm run dev` - Start development server
-- `npm run build` - Build untuk production
-- `npm run preview` - Preview production build
-
 ---
 
 ## Troubleshooting
@@ -385,146 +364,6 @@ npx expo start --clear
 2. Check console log di Expo untuk error messages
 3. Verifikasi network request berhasil ke backend
 4. Test dengan curl untuk memastikan backend response correct
-
----
-
-## Production Deployment
-
-### Roadmap ke Production USSD
-
-Implementasi USSD operator resmi memerlukan langkah-langkah berikut:
-
-1. **Registrasi Shortcode**
-   - BPJS mendaftarkan shortcode `*354#` ke operator seluler (Telkomsel, XL, Indosat, dll)
-   - Negosiasi biaya setup dan sewa bulanan per operator
-   - Kontrak dan legal agreement dengan setiap operator
-
-2. **USSD Gateway Setup**
-   - Install USSD Gateway: Kannel, Jasmin, atau vendor telco (Infobip, Vonage)
-   - Konfigurasi koneksi ke operator via SMPP/SS7/HTTP protocol
-   - Mapping shortcode `*354#` ke backend server
-
-3. **Backend Integration**
-   - Update backend untuk menerima request dari USSD Gateway
-   - Implementasi session management dengan Redis untuk high traffic
-   - Rate limiting dan load balancing
-
-4. **API JKN Integration**
-   - Integrasikan dengan API JKN resmi (mengganti dummy data)
-   - Implementasi OAuth2 authentication
-   - Error handling dan fallback mechanism
-
-5. **Security & Compliance**
-   - Implementasi SSL/TLS untuk semua komunikasi
-   - Enkripsi data sensitif (NIK, nomor HP, data kesehatan)
-   - Audit logging untuk semua transaksi USSD
-   - Compliance dengan UU Perlindungan Data Pribadi (UU PDP)
-   - Penetration testing sebelum go-live
-
-6. **Infrastructure**
-   - Deploy ke cloud provider (AWS, Azure, GCP)
-   - Setup load balancer untuk distribusi traffic
-   - Redis cluster untuk session management
-   - Database migration ke PostgreSQL/MySQL
-   - Auto-scaling untuk handle high concurrent users
-
-7. **Monitoring & Maintenance**
-   - Setup monitoring: Prometheus, Grafana, ELK Stack
-   - 24/7 monitoring dan alerting
-   - Incident response team
-   - Regular security updates
-
-### Backend Deployment Options
-
-**VPS Deployment (DigitalOcean, AWS EC2, Azure VM):**
-
-```bash
-# System setup
-sudo apt update && sudo apt upgrade -y
-sudo apt install nodejs npm
-sudo npm install -g pm2
-
-# Application setup
-git clone <repository-url>
-cd backend
-npm install
-npx prisma generate
-npx prisma migrate deploy
-
-# Start with PM2
-pm2 start src/index.js --name jkn-ussd
-pm2 startup
-pm2 save
-```
-
-Setup Nginx sebagai reverse proxy:
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-**Platform-as-a-Service (Railway, Heroku, Render):**
-
-1. Push code ke GitHub repository
-2. Connect repository di platform dashboard
-3. Set environment variables:
-   - `DATABASE_URL` (PostgreSQL connection string)
-   - `PORT` (default: 3000)
-   - `NODE_ENV=production`
-4. Deploy akan berjalan otomatis
-
-**Note:** SQLite tidak disarankan untuk production. Migrate ke PostgreSQL atau MySQL untuk production deployment.
-
-### Database Migration ke PostgreSQL
-
-Update `prisma/schema.prisma`:
-
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
-
-Install PostgreSQL driver:
-```bash
-npm install pg
-```
-
-Run migration:
-```bash
-npx prisma migrate deploy
-```
-
----
-
-## Contributing
-
-Kontribusi sangat diterima. Untuk berkontribusi:
-
-1. Fork repository ini
-2. Create feature branch: `git checkout -b feature/NamaFitur`
-3. Commit changes: `git commit -m 'Menambahkan fitur X'`
-4. Push ke branch: `git push origin feature/NamaFitur`
-5. Submit Pull Request
-
-Guidelines:
-- Ikuti code style yang ada
-- Tambahkan tests untuk fitur baru
-- Update dokumentasi jika diperlukan
-- Pastikan semua tests pass sebelum submit PR
 
 ---
 
