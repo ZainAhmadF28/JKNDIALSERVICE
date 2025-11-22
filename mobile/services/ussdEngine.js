@@ -2,6 +2,7 @@ import pesertaData from '../data/peserta.json';
 import tagihanData from '../data/tagihan.json';
 import riwayatData from '../data/riwayat.json';
 import faskesData from '../data/faskes.json';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class UssdEngine {
   constructor() {
@@ -13,6 +14,18 @@ class UssdEngine {
     this.pendaftaranbaru = [];
     this.pengaduan = [];
     this.konsultasi = [];
+    this.initializeData();
+  }
+
+  async initializeData() {
+    try {
+      const savedPeserta = await AsyncStorage.getItem('peserta_data');
+      if (savedPeserta) {
+        this.peserta = JSON.parse(savedPeserta);
+      }
+    } catch (error) {
+      console.error('Error loading peserta data:', error);
+    }
   }
 
   validateNIK(nik) {
@@ -107,6 +120,7 @@ NIK: ${peserta.nik}
 Status: ${peserta.status}
 Kelas: ${peserta.kelas}
 FKTP: ${peserta.fktp}
+Alamat: ${peserta.alamat || '-'}
 No. HP: ${peserta.noHP || '-'}`;
     }
 
@@ -287,11 +301,12 @@ Masukkan NIK Anda:`;
         '4': 'fktp'
       };
 
-      const peserta = this.peserta.find((p) => p.nik === nik);
-      if (peserta) {
+      const pesertaIndex = this.peserta.findIndex((p) => p.nik === nik);
+      if (pesertaIndex !== -1) {
         const fieldName = jenisMap[fieldType];
         if (fieldName) {
-          peserta[fieldName] = newValue;
+          this.peserta[pesertaIndex][fieldName] = newValue;
+          this.savePesertaData();
         }
       }
 
@@ -377,6 +392,14 @@ Masukkan NIK:`;
     }
 
     if (inputs.length === 2) {
+      const nik = inputs[1];
+      if (!this.validateNIK(nik)) {
+        return 'END Format NIK tidak valid.\nNIK harus 16 digit angka.';
+      }
+      const existingPeserta = this.peserta.find((p) => p.nik === nik);
+      if (existingPeserta) {
+        return 'END NIK sudah terdaftar dalam sistem JKN.';
+      }
       return `CON Masukkan No. Kartu Keluarga (KK):`;
     }
 
@@ -409,6 +432,21 @@ Masukkan NIK:`;
       };
 
       const fktp = fktpMap[fktpChoice] || 'Belum dipilih';
+
+      const newPeserta = {
+        nik,
+        noKK,
+        nama,
+        status: 'Aktif',
+        kelas: 'Kelas III',
+        fktp: fktp,
+        noHP: phoneNumber || '',
+        email: '',
+        alamat: domisili
+      };
+
+      this.peserta.push(newPeserta);
+      this.savePesertaData();
 
       this.pendaftaranbaru.push({
         nik,
@@ -561,6 +599,15 @@ Terima kasih.`;
     }
 
     return 'END Input tidak valid.';
+  }
+
+  savePesertaData() {
+    try {
+      AsyncStorage.setItem('peserta_data', JSON.stringify(this.peserta))
+        .catch(error => console.error('Error saving peserta data:', error));
+    } catch (error) {
+      console.error('Error in savePesertaData:', error);
+    }
   }
 }
 
