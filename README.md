@@ -25,6 +25,21 @@ Ini adalah prototipe simulasi USSD yang berjalan melalui HTTP, bukan USSD operat
 
 ## Quick Start
 
+### Option 1: Install APK (Recommended - For Testing)
+
+Cara tercepat untuk mencoba aplikasi:
+
+
+1. **Install APK:**
+   - Buka file APK di perangkat
+   - Izinkan instalasi dari sumber tidak dikenal (jika diminta)
+   - Tap "Install"
+4. **Buka aplikasi** JKN Dial Service
+5. **Lihat contoh data** dengan tap tombol "Data" (icon dashboard) di header
+6. **Ketik `*354#`** di dialpad lalu tekan CALL untuk memulai simulasi USSD
+
+### Option 2: Development with Expo Go
+
 ### Prerequisites
 
 - Node.js v16 atau lebih tinggi
