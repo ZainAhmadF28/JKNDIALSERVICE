@@ -18,6 +18,11 @@
     "android": {
       "package": "com.jkn.dialservice",
       "icon": "./assets/icon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "02f77b16-e708-4ef5-9005-5370206d1e5d"
+      }
     }
   }
 }

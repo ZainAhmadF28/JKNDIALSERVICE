@@ -21,11 +21,14 @@ import {
   StatusBar,
   TextInput,
   Alert,
-  Platform
+  Platform,
+  TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
 import Dialpad from './components/Dialpad';
 import UssdPopup from './components/UssdPopup';
+import DataDashboard from './components/DataDashboard';
 import {
   generateSessionId,
   sendUssdRequest,
@@ -40,6 +43,7 @@ export default function App() {
   const [popupType, setPopupType] = useState('END');
   const [popupMessage, setPopupMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [dashboardVisible, setDashboardVisible] = useState(false);
 
   useEffect(() => {
     setSessionId(generateSessionId());
@@ -128,6 +132,13 @@ export default function App() {
 
       <View style={styles.header}>
         <Text style={styles.headerTitle}>JKN Dial Service Prototype</Text>
+        <TouchableOpacity
+          style={styles.dashboardButton}
+          onPress={() => setDashboardVisible(true)}
+        >
+          <MaterialIcons name="dashboard" size={20} color="#fff" style={styles.dashboardIcon} />
+          <Text style={styles.dashboardButtonText}>Data</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.displayContainer}>
@@ -155,6 +166,11 @@ export default function App() {
         onClose={handleClosePopup}
         onInput={handleUssdInput}
       />
+
+      <DataDashboard
+        visible={dashboardVisible}
+        onClose={() => setDashboardVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -168,13 +184,38 @@ const styles = StyleSheet.create({
   header: {
     padding: 20,
     backgroundColor: '#009688',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center'
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
     color: '#fff',
-    marginBottom: 5,
+    flex: 1,
+    fontFamily: Platform.select({
+      ios: 'System',
+      android: 'Roboto'
+    })
+  },
+  dashboardButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6
+  },
+  dashboardIcon: {
+    marginRight: 2
+  },
+  dashboardButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
     fontFamily: Platform.select({
       ios: 'System',
       android: 'Roboto'
