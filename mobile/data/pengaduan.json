@@ -1,0 +1,20 @@
+[
+  {
+    "nomor": "081234567890",
+    "pesan": "Pelayanan di Puskesmas Cibinong sangat lambat, sudah menunggu 2 jam lebih",
+    "tanggal": "2025-01-15T08:30:00.000Z",
+    "status": "Diproses"
+  },
+  {
+    "nomor": "081234567891",
+    "pesan": "Kartu JKN saya tidak bisa digunakan, padahal iuran sudah dibayar",
+    "tanggal": "2025-01-14T14:20:00.000Z",
+    "status": "Selesai"
+  },
+  {
+    "nomor": "089604332830",
+    "pesan": "Aplikasi Mobile JKN sering error saat cek tagihan",
+    "tanggal": "2025-01-13T10:15:00.000Z",
+    "status": "Diproses"
+  }
+]

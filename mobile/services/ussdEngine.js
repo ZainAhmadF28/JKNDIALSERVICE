@@ -12,8 +12,8 @@ class UssdEngine {
     this.faskes = faskesData;
     this.antrian = [];
     this.pendaftaranbaru = [];
-    this.pengaduan = [];
-    this.konsultasi = [];
+    this.pengaduanList = [];
+    this.konsultasiList = [];
     this.initializeData();
   }
 
@@ -326,7 +326,7 @@ Ketik pesan pengaduan Anda (max 160 karakter):`;
     if (inputs.length === 2) {
       const pesan = inputs[1];
 
-      this.pengaduan.push({
+      this.pengaduanList.push({
         nomor: phoneNumber || 'Anonymous',
         pesan: pesan.substring(0, 160),
         tanggal: new Date().toISOString()
@@ -587,7 +587,7 @@ Ketik pertanyaan Anda (max 160 karakter):`;
     if (inputs.length === 2) {
       const pertanyaan = inputs[1];
 
-      this.konsultasi.push({
+      this.konsultasiList.push({
         nomor: phoneNumber || 'Anonymous',
         pertanyaan: pertanyaan.substring(0, 160),
         tanggal: new Date().toISOString()

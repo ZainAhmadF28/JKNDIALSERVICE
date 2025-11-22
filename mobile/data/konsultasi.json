@@ -1,0 +1,22 @@
+[
+  {
+    "nomor": "081234567890",
+    "pertanyaan": "Bagaimana cara mengubah kelas perawatan dari Kelas III ke Kelas II?",
+    "tanggal": "2025-01-15T09:00:00.000Z",
+    "status": "Dijawab",
+    "jawaban": "Anda dapat mengajukan perubahan kelas melalui aplikasi Mobile JKN atau datang langsung ke kantor BPJS"
+  },
+  {
+    "nomor": "081234567892",
+    "pertanyaan": "Apakah bisa menggunakan JKN untuk rawat jalan di luar kota?",
+    "tanggal": "2025-01-14T15:30:00.000Z",
+    "status": "Menunggu"
+  },
+  {
+    "nomor": "089604332830",
+    "pertanyaan": "Berapa lama proses pengurusan kartu JKN untuk peserta baru?",
+    "tanggal": "2025-01-13T11:45:00.000Z",
+    "status": "Dijawab",
+    "jawaban": "Proses pengurusan kartu JKN membutuhkan waktu 3-7 hari kerja setelah dokumen lengkap"
+  }
+]

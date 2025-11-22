@@ -6,7 +6,7 @@
  * PROPRIETARY AND CONFIDENTIAL
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,18 +14,50 @@ import {
   Modal,
   ScrollView,
   TouchableOpacity,
-  Platform
+  Platform,
+  RefreshControl
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Import data
 import pesertaData from '../data/peserta.json';
 import faskesData from '../data/faskes.json';
 import riwayatData from '../data/riwayat.json';
 import tagihanData from '../data/tagihan.json';
+import pengaduanData from '../data/pengaduan.json';
+import konsultasiData from '../data/konsultasi.json';
 
 export default function DataDashboard({ visible, onClose }) {
   const [activeTab, setActiveTab] = useState('peserta');
+  const [peserta, setPeserta] = useState(pesertaData);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      loadPesertaData();
+    }
+  }, [visible]);
+
+  const loadPesertaData = async () => {
+    try {
+      const savedPeserta = await AsyncStorage.getItem('peserta_data');
+      if (savedPeserta) {
+        setPeserta(JSON.parse(savedPeserta));
+      } else {
+        setPeserta(pesertaData);
+      }
+    } catch (error) {
+      console.error('Error loading peserta data:', error);
+      setPeserta(pesertaData);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadPesertaData();
+    setRefreshing(false);
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {
@@ -190,18 +222,94 @@ export default function DataDashboard({ visible, onClose }) {
     );
   };
 
+  const renderPengaduanCard = (item, index) => {
+    const getStatusColor = (status) => {
+      switch (status) {
+        case 'Diproses': return '#FF9800';
+        case 'Selesai': return '#4CAF50';
+        default: return '#9E9E9E';
+      }
+    };
+
+    return (
+      <View key={index} style={styles.card}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>Pengaduan #{index + 1}</Text>
+          <View style={[styles.badge, { backgroundColor: getStatusColor(item.status) }]}>
+            <Text style={styles.badgeText}>{item.status}</Text>
+          </View>
+        </View>
+        <View style={styles.cardBody}>
+          <View style={styles.row}>
+            <Text style={styles.label}>No. HP:</Text>
+            <Text style={styles.value}>{item.nomor}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Tanggal:</Text>
+            <Text style={styles.value}>{new Date(item.tanggal).toLocaleDateString('id-ID')}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Pesan:</Text>
+            <Text style={styles.value}>{item.pesan}</Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const renderKonsultasiCard = (item, index) => {
+    const getStatusColor = (status) => {
+      switch (status) {
+        case 'Dijawab': return '#4CAF50';
+        case 'Menunggu': return '#FF9800';
+        default: return '#9E9E9E';
+      }
+    };
+
+    return (
+      <View key={index} style={styles.card}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>Konsultasi #{index + 1}</Text>
+          <View style={[styles.badge, { backgroundColor: getStatusColor(item.status) }]}>
+            <Text style={styles.badgeText}>{item.status}</Text>
+          </View>
+        </View>
+        <View style={styles.cardBody}>
+          <View style={styles.row}>
+            <Text style={styles.label}>No. HP:</Text>
+            <Text style={styles.value}>{item.nomor}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Tanggal:</Text>
+            <Text style={styles.value}>{new Date(item.tanggal).toLocaleDateString('id-ID')}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Pertanyaan:</Text>
+            <Text style={styles.value}>{item.pertanyaan}</Text>
+          </View>
+          {item.jawaban && (
+            <View style={styles.row}>
+              <Text style={styles.label}>Jawaban:</Text>
+              <Text style={[styles.value, { color: '#4CAF50' }]}>{item.jawaban}</Text>
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'peserta':
         return (
           <View style={styles.content}>
             <Text style={styles.sectionTitle}>
-              Data Peserta ({pesertaData.length})
+              Data Peserta ({peserta.length})
             </Text>
             <Text style={styles.sectionDescription}>
               Contoh data peserta untuk simulasi USSD
             </Text>
-            {pesertaData.map(renderPesertaCard)}
+            {peserta.map(renderPesertaCard)}
           </View>
         );
       case 'faskes':
@@ -240,6 +348,30 @@ export default function DataDashboard({ visible, onClose }) {
             {tagihanData.map(renderTagihanCard)}
           </View>
         );
+      case 'pengaduan':
+        return (
+          <View style={styles.content}>
+            <Text style={styles.sectionTitle}>
+              Data Pengaduan ({pengaduanData.length})
+            </Text>
+            <Text style={styles.sectionDescription}>
+              Daftar pengaduan dari peserta JKN
+            </Text>
+            {pengaduanData.map(renderPengaduanCard)}
+          </View>
+        );
+      case 'konsultasi':
+        return (
+          <View style={styles.content}>
+            <Text style={styles.sectionTitle}>
+              Data Konsultasi ({konsultasiData.length})
+            </Text>
+            <Text style={styles.sectionDescription}>
+              Pertanyaan dan jawaban seputar JKN
+            </Text>
+            {konsultasiData.map(renderKonsultasiCard)}
+          </View>
+        );
       default:
         return null;
     }
@@ -260,57 +392,95 @@ export default function DataDashboard({ visible, onClose }) {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'peserta' && styles.activeTab]}
-            onPress={() => setActiveTab('peserta')}
-          >
-            <Text style={[
-              styles.tabText,
-              activeTab === 'peserta' && styles.activeTabText
-            ]}>
-              Peserta
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.tabScrollView}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'peserta' && styles.activeTab]}
+              onPress={() => setActiveTab('peserta')}
+            >
+              <Text style={[
+                styles.tabText,
+                activeTab === 'peserta' && styles.activeTabText
+              ]}>
+                Peserta
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'faskes' && styles.activeTab]}
-            onPress={() => setActiveTab('faskes')}
-          >
-            <Text style={[
-              styles.tabText,
-              activeTab === 'faskes' && styles.activeTabText
-            ]}>
-              Faskes
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'faskes' && styles.activeTab]}
+              onPress={() => setActiveTab('faskes')}
+            >
+              <Text style={[
+                styles.tabText,
+                activeTab === 'faskes' && styles.activeTabText
+              ]}>
+                Faskes
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'riwayat' && styles.activeTab]}
-            onPress={() => setActiveTab('riwayat')}
-          >
-            <Text style={[
-              styles.tabText,
-              activeTab === 'riwayat' && styles.activeTabText
-            ]}>
-              Riwayat
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'riwayat' && styles.activeTab]}
+              onPress={() => setActiveTab('riwayat')}
+            >
+              <Text style={[
+                styles.tabText,
+                activeTab === 'riwayat' && styles.activeTabText
+              ]}>
+                Riwayat
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'tagihan' && styles.activeTab]}
-            onPress={() => setActiveTab('tagihan')}
-          >
-            <Text style={[
-              styles.tabText,
-              activeTab === 'tagihan' && styles.activeTabText
-            ]}>
-              Tagihan
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'tagihan' && styles.activeTab]}
+              onPress={() => setActiveTab('tagihan')}
+            >
+              <Text style={[
+                styles.tabText,
+                activeTab === 'tagihan' && styles.activeTabText
+              ]}>
+                Tagihan
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'pengaduan' && styles.activeTab]}
+              onPress={() => setActiveTab('pengaduan')}
+            >
+              <Text style={[
+                styles.tabText,
+                activeTab === 'pengaduan' && styles.activeTabText
+              ]}>
+                Pengaduan
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'konsultasi' && styles.activeTab]}
+              onPress={() => setActiveTab('konsultasi')}
+            >
+              <Text style={[
+                styles.tabText,
+                activeTab === 'konsultasi' && styles.activeTabText
+              ]}>
+                Konsultasi
+              </Text>
+            </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
 
-        <ScrollView style={styles.scrollView}>
+        <ScrollView 
+          style={styles.scrollView}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#009688']}
+              tintColor="#009688"
+            />
+          }
+        >
           {renderContent()}
         </ScrollView>
       </View>
@@ -348,15 +518,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  tabContainer: {
-    flexDirection: 'row',
+  tabScrollView: {
+    maxHeight: 60,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0'
   },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff'
+  },
   tab: {
-    flex: 1,
+    minWidth: 100,
     paddingVertical: 15,
+    paddingHorizontal: 10,
     alignItems: 'center',
     borderBottomWidth: 3,
     borderBottomColor: 'transparent'
